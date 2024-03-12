@@ -4,6 +4,17 @@ pipeline {
         KUBECONFIG = '/var/lib/jenkins/workspace/k8s/' // Specify the path to your Kubernetes configuration file
     }
     stages{
+        stage('Static Code Analysis') {
+      environment {
+        SONAR_URL = "http://172.31.95.62:9000"
+      }
+      steps {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+          sh 'cd /var/lib/jenkins/workspace/k8s-project && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+        }
+      }
+    }
+        
         stage('Build Maven'){
             steps{
                git url:'https://github.com/LOKESH-creator660/cicd-with-K8S/', branch: "master"
@@ -23,16 +34,6 @@ pipeline {
                 }
           }
         }
-        stage('Static Code Analysis') {
-      environment {
-        SONAR_URL = "http://172.31.95.62:9000"
-      }
-      steps {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'cd /var/lib/jenkins/workspace/k8s-project && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
-        }
-      }
-    }
         stage('Docker login') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-pwd-loki', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
