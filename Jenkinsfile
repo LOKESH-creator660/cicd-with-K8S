@@ -4,6 +4,11 @@ pipeline {
         KUBECONFIG = '/var/lib/jenkins/workspace/k8s/' // Specify the path to your Kubernetes configuration file
     }
     stages{
+        stage('Git project clone'){
+            steps{
+                git url:'https://github.com/LOKESH-creator660/cicd-with-K8S/', branch: "master"
+            }
+        }  
         stage('Static Code Analysis') {
       environment {
         SONAR_URL = "http://172.31.95.62:9000"
@@ -17,7 +22,6 @@ pipeline {
         
         stage('Build Maven'){
             steps{
-               git url:'https://github.com/LOKESH-creator660/cicd-with-K8S/', branch: "master"
                sh 'mvn clean install'
             }
         }
